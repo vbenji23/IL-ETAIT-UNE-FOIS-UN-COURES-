@@ -1,0 +1,556 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Il était un cours</title>
+<meta name="description" content="Révise en écoutant ton cours raconté comme une histoire, avec musique d’ambiance et quiz.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F3F6FB; --surface:#FFFFFF; --line:#CFDDF0; --ink:#1E3A8A; --text:#1F2533; --muted:#5B6475;
+  --margin:#D64545; --hl:#FFE66D; --hl-text:#1F2533; --ok:#1F7A4D; --bad:#B42323; --shadow:0 1px 0 #CFDDF0;
+  color-scheme:light;
+  --ui:"Bricolage Grotesque",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --read:"Literata",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#111729; --surface:#182037; --line:#25324F; --ink:#A9BEFF; --text:#E6E9F2; --muted:#9AA3B8;
+    --margin:#E36A6A; --hl:#6B5A12; --hl-text:#FFF6CC; --ok:#5FD39A; --bad:#FF8A8A; --shadow:0 1px 0 #25324F;
+    color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--text);font-family:var(--ui);font-size:1rem;line-height:1.5;padding-bottom:env(safe-area-inset-bottom,0px)}
+.wrap{max-width:46rem;margin:0 auto;padding:2rem 1.25rem 4rem}
+:focus-visible{outline:3px solid var(--ink);outline-offset:2px;border-radius:4px}
+button,input,select,textarea{font:inherit;color:inherit}
+.hidden{display:none!important}
+
+header.hero{padding:1.5rem 0 2rem}
+.hero h1{font-weight:800;font-size:clamp(2.6rem,9vw,4.6rem);line-height:.95;letter-spacing:-.03em;margin:0;color:var(--ink)}
+.hero h1 .strike{position:relative;color:var(--muted);font-weight:400}
+.hero h1 .strike::after{content:"";position:absolute;left:-2%;right:-2%;top:55%;height:.09em;background:var(--margin);transform:rotate(-3deg)}
+.hero p{font-size:1.15rem;color:var(--muted);margin:1rem 0 0;max-width:34rem}
+
+h2.step{font-size:1.35rem;color:var(--ink);margin:2.5rem 0 .25rem;display:flex;gap:.6rem;align-items:baseline}
+h2.step .n{display:inline-grid;place-items:center;width:1.9rem;height:1.9rem;border-radius:50%;background:var(--ink);color:var(--paper);font-size:1rem;flex:none}
+.step-intro{color:var(--muted);margin:0 0 1.25rem}
+
+.field{margin-bottom:1.5rem}
+.field>label,.legend{display:block;font-weight:600;margin-bottom:.4rem}
+.hint{color:var(--muted);font-size:.9rem;margin:.25rem 0 0}
+input[type=text],textarea,select{width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:10px;padding:.7rem .85rem}
+textarea{min-height:9rem;resize:vertical;font-family:var(--read);font-size:1rem;line-height:1.6}
+.row{display:flex;gap:1rem;flex-wrap:wrap}
+.row>*{flex:1 1 12rem}
+.chips{display:flex;flex-wrap:wrap;gap:.5rem}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips label{border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:.45rem .9rem;cursor:pointer;font-weight:600;font-size:.95rem}
+.chips input:checked+label{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.chips input:focus-visible+label{outline:3px solid var(--ink);outline-offset:2px}
+.toggle{display:flex;gap:.75rem;align-items:flex-start;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:.9rem 1rem;cursor:pointer}
+.toggle input{width:1.25rem;height:1.25rem;margin-top:.15rem;accent-color:var(--ink)}
+.toggle strong{display:block}
+.toggle span{color:var(--muted);font-size:.92rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;border:0;border-radius:12px;padding:.8rem 1.3rem;font-weight:600;cursor:pointer;background:var(--ink);color:var(--paper);min-height:2.9rem;text-decoration:none}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.btn.big{font-size:1.1rem;padding:1rem 1.6rem}
+.actions{display:flex;gap:.75rem;flex-wrap:wrap;align-items:center}
+.filebtn{display:inline-block;color:var(--ink);font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.note{border-left:4px solid var(--margin);background:var(--surface);padding:.75rem 1rem;border-radius:0 10px 10px 0;margin:1rem 0;font-size:.95rem}
+.ok-msg{color:var(--ok);font-weight:600}
+
+.lib{list-style:none;padding:0;margin:0;display:grid;gap:.5rem}
+.lib li{display:flex;gap:.75rem;align-items:center;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:.6rem .6rem .6rem 1rem}
+.lib .t{flex:1;min-width:0}
+.lib .t strong{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lib .t span{color:var(--muted);font-size:.85rem}
+.lib button{background:none;border:0;color:var(--ink);font-weight:600;cursor:pointer;padding:.5rem .6rem;border-radius:8px}
+.lib button.del{color:var(--muted)}
+
+.page{position:relative;background:var(--surface);border-radius:4px 14px 14px 4px;padding:2rem 1.25rem 2rem 3.25rem;margin:1rem 0 1.5rem;box-shadow:var(--shadow);
+  background-image:repeating-linear-gradient(to bottom,transparent 0,transparent calc(2rem - 1px),var(--line) calc(2rem - 1px),var(--line) 2rem);
+  background-position:0 1.6rem}
+.page::before{content:"";position:absolute;top:0;bottom:0;left:2.2rem;width:2px;background:var(--margin);opacity:.8}
+.page h2{font-family:var(--read);font-weight:600;font-size:1.6rem;line-height:2rem;margin:0 0 2rem;color:var(--ink)}
+.story p{font-family:var(--read);font-size:1.125rem;line-height:2rem;margin:0 0 2rem;cursor:pointer;border-radius:3px;
+  background-image:linear-gradient(var(--hl),var(--hl));background-repeat:no-repeat;background-size:0% 100%;transition:background-size .6s ease}
+.story p.now{background-size:100% 100%;color:var(--hl-text)}
+.story p.recap{font-style:italic}
+.story mark{background:none;color:inherit;font-weight:600;text-decoration:underline;text-decoration-color:var(--margin);text-decoration-thickness:2px;text-underline-offset:4px}
+@media (prefers-reduced-motion:reduce){.story p{transition:none}}
+
+.player{position:sticky;bottom:0;z-index:5;background:var(--paper);padding:.75rem 0 calc(.75rem + env(safe-area-inset-bottom,0px));border-top:1.5px solid var(--line);display:flex;gap:.6rem;align-items:center;flex-wrap:wrap}
+.player .btn{padding:.6rem 1rem}
+.rate{display:flex;align-items:center;gap:.5rem;color:var(--muted);font-size:.9rem}
+.rate input{accent-color:var(--ink);width:6.5rem}
+.player .sp{flex:1}
+#musicBtn[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.settings{display:flex;gap:1rem;flex-wrap:wrap;margin:.5rem 0 0}
+.settings>*{flex:1 1 14rem}
+
+section.block{margin-top:2.5rem}
+section.block h3{font-size:1.35rem;margin:0 0 .25rem;color:var(--ink)}
+section.block>p{color:var(--muted);margin:0 0 1rem}
+.q{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;padding:1rem 1.1rem;margin-bottom:1rem}
+.q-head{display:flex;justify-content:space-between;gap:.75rem;align-items:flex-start}
+.q h4{margin:0 0 .75rem;font-size:1.05rem}
+.q .say{flex:none;background:none;border:1.5px solid var(--line);border-radius:999px;padding:.25rem .7rem;cursor:pointer;color:var(--ink);font-weight:600;font-size:.85rem}
+.opts{display:grid;gap:.5rem}
+.opt{text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:10px;padding:.65rem .85rem;cursor:pointer}
+.opt.good{border-color:var(--ok);color:var(--ok);font-weight:600}
+.opt.wrong{border-color:var(--bad);color:var(--bad);text-decoration:line-through}
+.expl{margin:.75rem 0 0;color:var(--muted);font-size:.95rem}
+.score{font-size:1.2rem;font-weight:800;color:var(--ink)}
+footer{color:var(--muted);font-size:.85rem;margin-top:3rem}
+@media (max-width:520px){.page{padding-left:2.6rem}.page::before{left:1.7rem}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <h1>Il était <span class="strike">une fois</span><br>un cours</h1>
+    <p>Ton cours raconté comme une histoire, lu à voix haute avec une musique d’ambiance, puis un quiz pour vérifier que tu as retenu.</p>
+  </header>
+
+  <div id="globalNote" class="note hidden" role="status"></div>
+
+  <section id="home">
+    <div id="libBox" class="hidden">
+      <h2 class="step" style="margin-top:0">Mes histoires</h2>
+      <ul class="lib" id="lib"></ul>
+    </div>
+
+    <h2 class="step"><span class="n">1</span>Ton cours</h2>
+    <p class="step-intro">Un ou deux documents. Avec deux, l’histoire relie les notions des deux.</p>
+    <div class="field">
+      <label for="matiere">Matière ou chapitre</label>
+      <input id="matiere" type="text" placeholder="Ex. Cryptographie : chiffrement asymétrique">
+    </div>
+    <div class="field">
+      <label for="cours1">Document 1</label>
+      <textarea id="cours1" placeholder="Colle ici un premier cours, un chapitre, une fiche…"></textarea>
+      <p class="hint"><label class="filebtn" for="fichier1">Importer un fichier (.pdf, .txt, .md)</label> <span id="count1"></span></p>
+      <input id="fichier1" type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" class="hidden">
+    </div>
+    <div class="field">
+      <label for="cours2">Document 2 (facultatif)</label>
+      <textarea id="cours2" placeholder="Un autre chapitre, le TD, tes notes…"></textarea>
+      <p class="hint"><label class="filebtn" for="fichier2">Importer un fichier (.pdf, .txt, .md)</label> <span id="count2"></span></p>
+      <input id="fichier2" type="file" accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown" class="hidden">
+    </div>
+    <div class="field" role="radiogroup" aria-labelledby="genreLbl">
+      <span class="legend" id="genreLbl">Genre de l’histoire</span>
+      <div id="genres"></div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="longueur">Longueur</label>
+        <select id="longueur">
+          <option value="court">Courte (≈ 3 min d’écoute)</option>
+          <option value="moyen" selected>Moyenne (≈ 6 min)</option>
+          <option value="long">Longue (≈ 10 min)</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label class="toggle"><input id="withQuiz" type="checkbox" checked>
+        <div><strong>Ajouter un quiz</strong><span>Claude écrit aussi 5 questions à choix multiples, que tu fais sur le site après l’histoire.</span></div>
+      </label>
+    </div>
+
+    <h2 class="step"><span class="n">2</span>Demande l’histoire à Claude</h2>
+    <p class="step-intro">Copie la consigne, colle-la dans une nouvelle conversation avec Claude, puis copie toute sa réponse.</p>
+    <div class="actions">
+      <button id="copyBtn" class="btn big">Copier la consigne</button>
+      <a class="btn ghost big" href="https://claude.ai/new" target="_blank" rel="noopener">Ouvrir Claude</a>
+      <span id="copyMsg" class="ok-msg" role="status"></span>
+    </div>
+    <div id="manualCopy" class="field hidden" style="margin-top:1rem">
+      <label for="promptOut">La copie automatique n’a pas marché : sélectionne tout ce texte et copie-le.</label>
+      <textarea id="promptOut" readonly></textarea>
+    </div>
+
+    <h2 class="step"><span class="n">3</span>Colle la réponse de Claude</h2>
+    <p class="step-intro">Toute la réponse, quiz compris. Le site la met en page et la lit à voix haute.</p>
+    <div class="field">
+      <label for="answer" class="hidden">Réponse de Claude</label>
+      <textarea id="answer" placeholder="Colle ici la réponse complète de Claude…"></textarea>
+    </div>
+    <button id="readBtn" class="btn big">Ouvrir l’histoire</button>
+  </section>
+
+  <section id="storyView" class="hidden">
+    <button id="backBtn" class="btn ghost">Retour</button>
+    <article class="page" aria-live="polite">
+      <h2 id="storyTitle"></h2>
+      <div id="story" class="story"></div>
+    </article>
+
+    <div class="player">
+      <button id="playBtn" class="btn">Écouter</button>
+      <button id="stopBtn" class="btn ghost">Arrêter</button>
+      <button id="musicBtn" class="btn ghost" aria-pressed="false">Musique</button>
+      <span class="sp"></span>
+      <label class="rate">Vitesse <input id="rate" type="range" min="0.7" max="1.5" step="0.1" value="1"> <span id="rateVal">1×</span></label>
+      <label class="rate">Musique <input id="musicVol" type="range" min="0" max="1" step="0.05" value="0.5"></label>
+    </div>
+    <p class="hint">Touche un paragraphe pour reprendre la lecture à cet endroit.</p>
+    <div class="settings">
+      <div class="field"><label for="voice">Voix du narrateur</label><select id="voice"></select>
+        <p class="hint" id="voiceHint">Les voix disponibles dépendent de ton navigateur. Celles marquées « Google » ou « Natural » sont les plus naturelles.</p></div>
+    </div>
+
+    <section class="block" id="quizBlock">
+      <h3>Teste-toi</h3>
+      <p>Les questions écrites par Claude à partir de ton cours, avec la correction.</p>
+      <div id="quiz"></div>
+    </section>
+  </section>
+
+  <footer>Les histoires sont écrites par Claude à partir de ton cours, et la musique est composée en direct dans ton navigateur. Tout reste enregistré sur ton appareil. Vérifie toujours les notions importantes dans tes supports.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const GENRES = [
+  ["aventure","Aventure","une aventure épique","epique"],
+  ["polar","Enquête","une enquête policière","mystere"],
+  ["sf","Science-fiction","une histoire de science-fiction","cosmos"],
+  ["braquage","Braquage","un film de braquage façon heist","tension"],
+  ["conte","Conte","un conte merveilleux","boite"],
+  ["quotidien","Vie d’étudiant","une tranche de vie d’étudiants","lofi"],
+  ["sda","Le Seigneur des Anneaux","une histoire qui se déroule dans l’univers du Seigneur des Anneaux de Tolkien (la Terre du Milieu, ses peuples, ses lieux, sa quête et son ton épique)","terre",true],
+  ["got","Game of Thrones","une histoire qui se déroule dans l’univers de Game of Thrones (Westeros, les grandes maisons, les intrigues de pouvoir, le Mur et les dragons)","trone",true],
+  ["vd","Vampire Diaries","une histoire qui se déroule dans l’univers de Vampire Diaries (Mystic Falls, les vampires, les sorcières, les secrets de famille et les rivalités)","gothique",true],
+  ["hg","Hunger Games","une histoire qui se déroule dans l’univers de Hunger Games (Panem, les districts, le Capitole, l’arène et ses épreuves de survie)","arene",true]
+];
+const WORDS = {court:400, moyen:800, long:1300};
+const MAX_DOC = 20000;
+
+const S = { matiere:"", docs:["",""], names:["",""], genre:"aventure", longueur:"moyen", quiz:true, rate:1, voiceName:"", music:true, musicVol:0.5 };
+let LIB = [], cur = null;
+
+/* ---------- stockage local ---------- */
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function fetchStore(k,def){try{const v=JSON.parse(localStorage.getItem(k)||"null"); return v==null?def:v}catch(e){return def}}
+function save(){store("ieuc-reglages",S)}
+function saveLib(){store("ieuc-histoires",LIB)}
+
+/* ---------- utilitaires ---------- */
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+function rich(t){return esc(t).replace(/\*\*(.+?)\*\*/g,"<mark>$1</mark>")}
+function plain(t){return t.replace(/\*\*/g,"").replace(/[#*_`>]/g,"").trim()}
+function note(msg){const n=$("#globalNote"); if(!msg){n.classList.add("hidden");return} n.textContent=msg; n.classList.remove("hidden")}
+function genreOf(id){return GENRES.find(g=>g[0]===id)||GENRES[0]}
+
+/* ---------- formulaire ---------- */
+function buildGenres(){
+  const chip=([id,label])=>`<input type="radio" name="genre" id="g-${id}" value="${id}" ${S.genre===id?"checked":""}><label for="g-${id}">${label}</label>`;
+  $("#genres").innerHTML=`<div class="chips">${GENRES.filter(g=>!g[4]).map(chip).join("")}</div><p class="hint" style="margin:.9rem 0 .5rem">Ou dans l’univers de…</p><div class="chips">${GENRES.filter(g=>g[4]).map(chip).join("")}</div>`;
+  document.querySelectorAll("input[name=genre]").forEach(r=>r.onchange=()=>{S.genre=r.value; save()});
+}
+function updateCount(n){const t=$("#cours"+n).value.length; $("#count"+n).textContent=t?` · ${t.toLocaleString("fr-FR")} caractères${t>MAX_DOC?" (seuls les "+MAX_DOC.toLocaleString("fr-FR")+" premiers seront utilisés)":""}`:""}
+let pdfjsReady=null;
+function loadPdfjs(){
+  if(!pdfjsReady) pdfjsReady=new Promise((res,rej)=>{const s=document.createElement("script"); s.src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"; s.onload=()=>{window.pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; res(window.pdfjsLib)}; s.onerror=()=>{pdfjsReady=null; rej(new Error("pdfjs"))}; document.head.appendChild(s)});
+  return pdfjsReady;
+}
+async function pdfText(f){
+  const lib=await loadPdfjs();
+  const pdf=await lib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise;
+  const out=[];
+  for(let i=1;i<=pdf.numPages;i++){const p=await pdf.getPage(i); const c=await p.getTextContent(); out.push(c.items.map(it=>it.str+(it.hasEOL?"\n":" ")).join(""))}
+  return out.join("\n\n").replace(/[ \t]+/g," ").trim();
+}
+[1,2].forEach(n=>{
+  $("#cours"+n).addEventListener("input",()=>{S.docs[n-1]=$("#cours"+n).value; updateCount(n); save()});
+  $("#fichier"+n).addEventListener("change",async e=>{
+    const f=e.target.files[0]; if(!f) return;
+    $("#count"+n).textContent=" · lecture du fichier…";
+    try{
+      const text=(/\.pdf$/i.test(f.name)||f.type==="application/pdf")?await pdfText(f):await f.text();
+      if(!text.trim()) throw new Error("vide");
+      $("#cours"+n).value=S.docs[n-1]=text; S.names[n-1]=f.name.replace(/\.[^.]+$/,"");
+      if(n===1&&!$("#matiere").value){$("#matiere").value=S.matiere=S.names[0]}
+      updateCount(n); save(); note("");
+    }catch(err){updateCount(n); note("Impossible de lire « "+f.name+" ». Si c’est un PDF scanné (une image), copie-colle le texte à la place.")}
+    e.target.value="";
+  });
+});
+
+/* ---------- la consigne pour Claude ---------- */
+function coursBlock(){
+  return S.docs.map((t,i)=>t.trim()?`<document numero="${i+1}" titre="${esc(S.names[i]||"Document "+(i+1))}">\n${t.trim().slice(0,MAX_DOC)}\n</document>`:"").filter(Boolean).join("\n\n");
+}
+function buildPrompt(){
+  const G=genreOf(S.genre), two=S.docs.filter(t=>t.trim()).length>1;
+  return `Tu es un conteur pédagogique. Transforme le cours ci-dessous en ${G[2]}, en français, pensée pour être écoutée à voix haute par un étudiant qui révise.
+
+Règles :
+- Toutes les notions importantes du cours doivent apparaître, avec des définitions exactes. N’invente aucun fait faux. Si le cours contient des étapes, des formules ou des chiffres clés, garde-les justes.
+- Les personnages découvrent et expliquent les notions à travers l’intrigue : dialogues, situations concrètes, métaphores parlantes. L’histoire doit rester prenante.
+${G[4]?"- L’histoire se déroule dans cet univers : reprends ses lieux, son ambiance et ses personnages connus, ou un personnage original qui y vit. Ne recopie aucune réplique ni aucun passage des livres, films ou séries : tout le texte est de toi. Pas de violence graphique.\n":""}${two?"- Le cours vient de deux documents. Utilise les notions des deux de façon équilibrée et relie-les dans une seule intrigue.\n":""}- Mets chaque notion clé en **gras** la première fois qu’elle apparaît.
+- Environ ${WORDS[S.longueur]} mots, en paragraphes de 2 à 5 phrases séparés par une ligne vide.
+- Aucun titre Markdown, aucune liste, aucun emoji, aucun tableau dans l’histoire : uniquement de la prose qui se lit bien à l’oral. Écris les symboles en toutes lettres quand c’est utile à l’oral.
+
+Format exact de ta réponse, sans phrase d’introduction ni de conclusion :
+- Première ligne : seulement le titre de l’histoire.
+- Ensuite l’histoire. Son dernier paragraphe commence par « À retenir : » et résume en prose les points essentiels du cours.
+${S.quiz?`- Puis une ligne qui contient seulement ===QUIZ===
+- Puis un tableau JSON de 5 questions à choix multiples sur les notions essentielles${two?" des deux documents":""}, chacune avec 4 choix plausibles et une seule bonne réponse, de la forme :
+[{"question":"…","choix":["…","…","…","…"],"bonne":0,"explication":"une ou deux phrases"}]
+"bonne" est l’indice (0 à 3) du bon choix.
+`:""}
+Matière : ${S.matiere||"non précisée"}
+
+${coursBlock()}`;
+}
+async function copyText(text){
+  try{await navigator.clipboard.writeText(text); return true}
+  catch(e){const t=document.createElement("textarea"); t.value=text; t.style.position="fixed"; t.style.opacity="0"; document.body.appendChild(t); t.select(); let ok=false; try{ok=document.execCommand("copy")}catch(_){} t.remove(); return ok}
+}
+$("#copyBtn").onclick=async()=>{
+  S.matiere=$("#matiere").value.trim(); S.longueur=$("#longueur").value; S.quiz=$("#withQuiz").checked; [1,2].forEach(n=>S.docs[n-1]=$("#cours"+n).value); save();
+  if(S.docs.join("").trim().length<80){note("Ajoute au moins un document (quelques phrases minimum) pour que l’histoire ait de la matière."); $("#cours1").focus(); return}
+  note(""); const p=buildPrompt();
+  if(await copyText(p)){ $("#manualCopy").classList.add("hidden"); $("#copyMsg").textContent="Consigne copiée. Colle-la dans Claude."; setTimeout(()=>$("#copyMsg").textContent="",5000) }
+  else { $("#promptOut").value=p; $("#manualCopy").classList.remove("hidden"); $("#promptOut").focus(); $("#promptOut").select() }
+};
+
+/* ---------- lire la réponse de Claude ---------- */
+function parseAnswer(raw){
+  const parts=raw.replace(/\r/g,"").split(/^\s*=+\s*QUIZ\s*=+\s*$/mi);
+  const lines=parts[0].replace(/```[a-z]*/gi,"").split("\n").map(l=>l.replace(/^#+\s*/,""));
+  let i=0; while(i<lines.length&&!lines[i].trim()) i++;
+  const title=plain(lines[i]||"Mon histoire");
+  const paras=lines.slice(i+1).join("\n").split(/\n\s*\n/).map(p=>p.replace(/\n/g," ").trim()).filter(Boolean);
+  let quiz=[];
+  const qp=parts.slice(1).join("\n")||(parts[0].match(/\[\s*\{[\s\S]*"question"[\s\S]*\]/)||[""])[0];
+  const a=qp.indexOf("["), b=qp.lastIndexOf("]");
+  if(a>=0&&b>a){try{quiz=JSON.parse(qp.slice(a,b+1)).filter(q=>q&&q.question&&Array.isArray(q.choix)&&q.choix.length>=2)}catch(e){}}
+  if(!parts[1]&&quiz.length){ const k=paras.findIndex(p=>/^\[\s*\{/.test(p)); if(k>=0) paras.splice(k) }
+  return {title,paras,quiz};
+}
+$("#readBtn").onclick=()=>{
+  const raw=$("#answer").value.trim();
+  if(raw.length<100){note("Colle d’abord la réponse complète de Claude dans la case de l’étape 3."); $("#answer").focus(); return}
+  const r=parseAnswer(raw);
+  if(!r.paras.length){note("Je n’ai pas trouvé d’histoire dans ce texte. Vérifie que tu as copié toute la réponse de Claude."); return}
+  note(S.quiz&&!r.quiz.length?"L’histoire est prête, mais le quiz n’a pas pu être lu. Vérifie que la partie après ===QUIZ=== est complète.":"");
+  cur={id:Date.now().toString(36),title:r.title,genre:S.genre,date:new Date().toISOString(),paras:r.paras,quiz:r.quiz};
+  LIB.unshift(cur); saveLib(); $("#answer").value="";
+  openStory(cur);
+};
+
+/* ---------- bibliothèque ---------- */
+function renderLib(){
+  $("#libBox").classList.toggle("hidden",!LIB.length);
+  $("#lib").innerHTML=LIB.map(s=>`<li><div class="t"><strong>${esc(s.title)}</strong><span>${esc(genreOf(s.genre)[1])} · ${new Date(s.date).toLocaleDateString("fr-FR")}</span></div><button data-open="${s.id}">Ouvrir</button><button class="del" data-del="${s.id}" aria-label="Supprimer ${esc(s.title)}">Supprimer</button></li>`).join("");
+}
+$("#lib").addEventListener("click",e=>{
+  const o=e.target.closest("[data-open]"), d=e.target.closest("[data-del]");
+  if(o){const s=LIB.find(x=>x.id===o.dataset.open); if(s) openStory(s)}
+  if(d){const s=LIB.find(x=>x.id===d.dataset.del); if(s&&confirm("Supprimer définitivement « "+s.title+" » ?")){LIB=LIB.filter(x=>x!==s); saveLib(); renderLib()}}
+});
+
+/* ---------- affichage de l’histoire ---------- */
+function openStory(s){
+  cur=s; stopReading();
+  $("#storyTitle").textContent=s.title;
+  $("#story").innerHTML=s.paras.map((p,i)=>`<p data-i="${i}" class="${/^\**À retenir/i.test(p)?"recap":""}">${rich(p)}</p>`).join("");
+  $("#quizBlock").classList.toggle("hidden",!s.quiz||!s.quiz.length);
+  if(s.quiz&&s.quiz.length) renderQuiz(s.quiz);
+  $("#home").classList.add("hidden"); $("#storyView").classList.remove("hidden");
+  window.scrollTo({top:0});
+  if(S.music) Music.setMood(s.genre);
+}
+$("#backBtn").onclick=()=>{stopReading(); Music.stop(); $("#storyView").classList.add("hidden"); $("#home").classList.remove("hidden"); renderLib(); window.scrollTo({top:0})};
+$("#story").addEventListener("click",e=>{const p=e.target.closest("p[data-i]"); if(p){startMusicIfWanted(); play(+p.dataset.i)}});
+
+/* ---------- voix du navigateur ---------- */
+const synth=window.speechSynthesis||null;
+let tok=0, reading="idle", curPara=0;
+function frVoices(){return synth?synth.getVoices().filter(v=>/^fr/i.test(v.lang)):[]}
+function bestVoice(){
+  const v=frVoices(); if(!v.length) return null;
+  return v.find(x=>x.name===S.voiceName)||v.find(x=>/natural|google|premium|enhanced|neural/i.test(x.name))||v[0];
+}
+function fillVoices(){
+  const v=frVoices(), sel=$("#voice"), best=bestVoice();
+  sel.innerHTML=v.length?v.map(x=>`<option value="${esc(x.name)}" ${best&&x.name===best.name?"selected":""}>${esc(x.name)}</option>`).join(""):`<option>Aucune voix française trouvée</option>`;
+  sel.disabled=!v.length;
+}
+if(synth){fillVoices(); synth.onvoiceschanged=fillVoices}
+$("#voice").onchange=e=>{S.voiceName=e.target.value; save(); if(reading!=="idle") play(curPara)};
+
+function chunks(text){
+  const sents=text.match(/[^.!?…]+[.!?…]+["»”)]*\s*|[^.!?…]+$/g)||[text], out=[]; let buf="";
+  sents.forEach(s=>{ if((buf+s).length>220&&buf){out.push(buf.trim()); buf=s} else buf+=s });
+  if(buf.trim()) out.push(buf.trim()); return out;
+}
+function setReading(st){
+  reading=st;
+  $("#playBtn").textContent=st==="speaking"?"Pause":st==="paused"?"Reprendre":"Écouter";
+  Music.duck=st==="speaking"?.4:1; Music.apply();
+  if(st==="idle") highlight(null);
+}
+function highlight(i){
+  document.querySelectorAll(".story p.now").forEach(p=>p.classList.remove("now"));
+  if(i==null) return;
+  const el=document.querySelector(`.story p[data-i="${i}"]`);
+  if(el){el.classList.add("now"); const r=el.getBoundingClientRect(); if(r.top<60||r.bottom>innerHeight-140) el.scrollIntoView({block:"center",behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})}
+}
+function speakItems(items){
+  if(!synth){note("Ce navigateur ne peut pas lire à voix haute. Le texte reste affiché."); return}
+  synth.cancel(); const t=++tok, voice=bestVoice();
+  const us=[];
+  items.forEach(it=>chunks(plain(it.text)).forEach(c=>us.push({c,para:it.para})));
+  if(!us.length) return;
+  setTimeout(()=>{
+    if(t!==tok) return;
+    us.forEach((x,k)=>{
+      const u=new SpeechSynthesisUtterance(x.c); u.lang="fr-FR"; u.rate=S.rate; if(voice) u.voice=voice;
+      u.onstart=()=>{if(t!==tok) return; setReading("speaking"); if(x.para!=null){curPara=x.para; highlight(x.para)}};
+      if(k===us.length-1) u.onend=()=>{if(t===tok) setReading("idle")};
+      u.onerror=e=>{if(t===tok&&e.error!=="interrupted"&&e.error!=="canceled") setReading("idle")};
+      synth.speak(u);
+    });
+  },60);
+}
+function play(from){
+  if(!cur) return;
+  const items=(from===0?[{text:cur.title,para:null}]:[]).concat(cur.paras.slice(from).map((p,k)=>({text:p,para:from+k})));
+  speakItems(items);
+}
+function stopReading(){tok++; if(synth) synth.cancel(); setReading("idle")}
+function startMusicIfWanted(){ if(S.music&&!Music.on&&cur) Music.start(cur.genre) }
+$("#playBtn").onclick=()=>{
+  if(reading==="speaking"){synth.pause(); setReading("paused")}
+  else if(reading==="paused"){synth.resume(); setReading("speaking")}
+  else {startMusicIfWanted(); play(0)}
+};
+$("#stopBtn").onclick=stopReading;
+$("#rate").oninput=e=>{S.rate=+e.target.value; $("#rateVal").textContent=S.rate.toLocaleString("fr-FR")+"×"; save()};
+$("#rate").onchange=()=>{if(reading!=="idle") play(curPara)};
+
+/* ---------- musique d’ambiance ---------- */
+const MOODS={
+  epique:{root:98,scale:[0,2,3,5,7,8,10],prog:[0,5,3,4],bar:4.8,pad:"sawtooth",cut:900,bass:true,mel:{p:.3,w:"triangle",o:2},drum:[0,.5]},
+  mystere:{root:110,scale:[0,2,3,5,7,8,10],prog:[0,3,5,4],bar:5.6,pad:"sine",cut:700,bass:true,mel:{p:.22,w:"triangle",o:2,pluck:true}},
+  cosmos:{root:110,scale:[0,2,4,6,7,9,11],prog:[0,1,5,4],bar:4,pad:"sawtooth",cut:600,arp:{w:"square",cut:1800}},
+  tension:{root:87.3,scale:[0,1,3,5,7,8,10],prog:[0,0,5,6],bar:2.4,pad:"sawtooth",cut:500,bass:true,drum:[0,.25,.375,.5,.75],tick:true},
+  boite:{root:130.8,scale:[0,2,4,5,7,9,11],prog:[0,3,4,0],bar:3.6,pad:"sine",cut:1200,mel:{p:.75,w:"sine",o:3,pluck:true,bell:true}},
+  lofi:{root:110,scale:[0,2,4,5,7,9,11],prog:[3,2,1,4],bar:4.2,pad:"triangle",cut:900,bass:true,seventh:true,mel:{p:.2,w:"sine",o:2,pluck:true},drum:[0,.625],tick:true},
+  terre:{root:146.8,scale:[0,2,4,5,7,9,10],prog:[0,6,3,0],bar:5.2,pad:"triangle",cut:1100,bass:true,drone:true,mel:{p:.45,w:"sine",o:2,vib:true}},
+  trone:{root:73.4,scale:[0,2,3,5,7,8,10],prog:[0,5,6,4],bar:3.6,pad:"sawtooth",cut:650,bass:true,ostinato:true,mel:{p:.25,w:"sawtooth",o:2,cut:1400}},
+  gothique:{root:92.5,scale:[0,2,3,5,7,8,11],prog:[0,3,4,0],bar:6,pad:"square",cut:550,bass:true,mel:{p:.25,w:"sine",o:3,pluck:true,bell:true}},
+  arene:{root:82.4,scale:[0,2,3,5,7,8,10],prog:[0,5,3,6],bar:3,pad:"sawtooth",cut:700,bass:true,drum:[0,.125,.25,.5,.625,.75],mel:{p:.3,w:"sine",o:2,vib:true}}
+};
+const Music={ctx:null,on:false,vol:.5,duck:1,step:0,timer:null,mood:MOODS.epique,
+  init(){
+    if(this.ctx) return true; const C=window.AudioContext||window.webkitAudioContext; if(!C) return false;
+    const c=this.ctx=new C(); this.master=c.createGain(); this.master.gain.value=0;
+    const comp=c.createDynamicsCompressor(); this.master.connect(comp); comp.connect(c.destination);
+    this.bus=c.createGain(); this.bus.connect(this.master);
+    const len=Math.floor(c.sampleRate*3.5), ir=c.createBuffer(2,len,c.sampleRate);
+    for(let ch=0;ch<2;ch++){const d=ir.getChannelData(ch); for(let i=0;i<len;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.5)}
+    const verb=c.createConvolver(); verb.buffer=ir; const wet=c.createGain(); wet.gain.value=.5;
+    this.bus.connect(verb); verb.connect(wet); wet.connect(this.master);
+    this.noise=c.createBuffer(1,Math.floor(c.sampleRate*.2),c.sampleRate); const n=this.noise.getChannelData(0); for(let i=0;i<n.length;i++) n[i]=Math.random()*2-1;
+    return true;
+  },
+  level(){return this.on?this.vol*.6*this.duck:0},
+  apply(){if(this.ctx) this.master.gain.setTargetAtTime(this.level(),this.ctx.currentTime,.5)},
+  start(id){
+    if(!this.init()) return false; this.ctx.resume().catch(()=>{}); this.setMood(id); this.on=true; this.apply();
+    if(!this.timer){this.next=this.ctx.currentTime+.15; this.timer=setInterval(()=>this.tick(),250)}
+    syncMusicBtn(); return true;
+  },
+  stop(){this.on=false; this.apply(); clearInterval(this.timer); this.timer=null; syncMusicBtn()},
+  setMood(id){const G=GENRES.find(x=>x[0]===id); this.mood=MOODS[G?G[3]:"epique"]||MOODS.epique},
+  tick(){
+    if(!this.ctx||this.ctx.state!=="running") return;
+    if(this.next<this.ctx.currentTime) this.next=this.ctx.currentTime+.1;
+    while(this.next<this.ctx.currentTime+1.2){this.bar(this.next,this.mood); this.next+=this.mood.bar}
+  },
+  f(m,deg,oct){const s=m.scale,n=s.length,k=((deg%n)+n)%n; return m.root*Math.pow(2,(s[k]+12*Math.floor(deg/n))/12+oct)},
+  tone(t,freq,dur,{w="sine",peak=.1,a=.02,cut=2000,pluck=false,vib=false}={}){
+    const c=this.ctx,o=c.createOscillator(),fl=c.createBiquadFilter(),g=c.createGain();
+    o.type=w; o.frequency.value=freq; fl.type="lowpass"; fl.frequency.value=cut;
+    if(vib){const l=c.createOscillator(),lg=c.createGain(); l.frequency.value=5; lg.gain.value=freq*.006; l.connect(lg); lg.connect(o.frequency); l.start(t); l.stop(t+dur+.1)}
+    g.gain.setValueAtTime(0,t); g.gain.linearRampToValueAtTime(peak,t+a);
+    if(pluck) g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+    else {g.gain.setValueAtTime(peak,t+Math.max(a,dur-.8)); g.gain.linearRampToValueAtTime(0,t+dur)}
+    o.connect(fl); fl.connect(g); g.connect(this.bus); o.start(t); o.stop(t+dur+.05);
+  },
+  bar(t,m){
+    const B=m.bar, deg=m.prog[this.step++%m.prog.length], c=this.ctx;
+    const chord=[deg,deg+2,deg+4].concat(m.seventh?[deg+6]:[]);
+    chord.forEach(d=>this.tone(t,this.f(m,d,1),B+1.2,{w:m.pad,peak:.045,a:B*.35,cut:m.cut}));
+    if(m.drone){this.tone(t,m.root,B+1,{w:"sawtooth",peak:.03,a:1,cut:300}); this.tone(t,m.root*1.5,B+1,{w:"sawtooth",peak:.02,a:1,cut:300})}
+    if(m.bass) this.tone(t,this.f(m,deg,m.root>100?-1:0),B,{w:"sine",peak:.12,a:.08,cut:400});
+    if(m.ostinato) for(let i=0;i<8;i++) this.tone(t+i*B/8,this.f(m,deg+(i%2?4:0),0),B/8*.9,{w:"sawtooth",peak:.05,a:.01,cut:900,pluck:true});
+    if(m.arp) for(let i=0;i<8;i++) this.tone(t+i*B/8,this.f(m,chord[i%3]+(i>3?7:0),2),B/8,{w:m.arp.w,peak:.025,a:.005,cut:m.arp.cut,pluck:true});
+    if(m.mel) for(let b=0;b<4;b++) if(Math.random()<m.mel.p){
+      const d=chord[Math.floor(Math.random()*3)]+[0,0,1,-1][Math.floor(Math.random()*4)];
+      const tt=t+b*B/4, dur=m.mel.pluck?(m.mel.bell?2.4:1.4):B/4*1.6, fr=this.f(m,d,m.mel.o);
+      this.tone(tt,fr,dur,{w:m.mel.w,peak:m.mel.bell?.05:.06,a:m.mel.pluck?.005:.12,cut:m.mel.cut||3000,pluck:m.mel.pluck,vib:m.mel.vib});
+      if(m.mel.bell) this.tone(tt,fr*2.76,dur*.5,{w:"sine",peak:.015,a:.003,pluck:true,cut:6000});
+    }
+    if(m.drum) m.drum.forEach((p,i)=>{const tt=t+p*B,o=c.createOscillator(),g=c.createGain();
+      o.frequency.setValueAtTime(110,tt); o.frequency.exponentialRampToValueAtTime(40,tt+.25);
+      g.gain.setValueAtTime(i===0?.35:.2,tt); g.gain.exponentialRampToValueAtTime(.0001,tt+.4);
+      o.connect(g); g.connect(this.master); o.start(tt); o.stop(tt+.45)});
+    if(m.tick) for(let i=0;i<8;i++){const tt=t+i*B/8,s=c.createBufferSource(),hp=c.createBiquadFilter(),g=c.createGain();
+      s.buffer=this.noise; hp.type="highpass"; hp.frequency.value=7000; g.gain.setValueAtTime(i%2?.02:.035,tt); g.gain.exponentialRampToValueAtTime(.0001,tt+.06);
+      s.connect(hp); hp.connect(g); g.connect(this.master); s.start(tt); s.stop(tt+.08)}
+  }
+};
+function syncMusicBtn(){const b=$("#musicBtn"); if(b){b.setAttribute("aria-pressed",Music.on?"true":"false"); b.textContent=Music.on?"Couper la musique":"Musique"}}
+$("#musicBtn").onclick=()=>{
+  if(Music.on){Music.stop(); S.music=false}
+  else { if(!Music.start(cur?cur.genre:S.genre)){note("Ce navigateur ne peut pas jouer la musique d’ambiance."); return} S.music=true }
+  save();
+};
+$("#musicVol").oninput=e=>{S.musicVol=Music.vol=+e.target.value; Music.apply(); save()};
+
+/* ---------- quiz ---------- */
+function renderQuiz(qs){
+  let answered=0, good=0; const L="ABCD", box=$("#quiz"); box.innerHTML="";
+  qs.forEach((q,qi)=>{
+    const d=document.createElement("div"); d.className="q";
+    d.innerHTML=`<div class="q-head"><h4>${qi+1}. ${esc(q.question)}</h4><button class="say" type="button">Écouter</button></div><div class="opts">${q.choix.map((c,ci)=>`<button class="opt" type="button" data-c="${ci}">${L[ci]||ci+1}. ${esc(c)}</button>`).join("")}</div><p class="expl hidden"></p>`;
+    d.querySelector(".say").onclick=()=>speakItems([{text:q.question+" "+q.choix.map((c,ci)=>`Réponse ${L[ci]} : ${c}.`).join(" "),para:null}]);
+    d.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+      if(d.dataset.done) return; d.dataset.done=1; answered++;
+      const ci=+b.dataset.c, ok=ci===+q.bonne; if(ok) good++;
+      d.querySelectorAll(".opt").forEach(o=>{if(+o.dataset.c===+q.bonne) o.classList.add("good"); else if(o===b) o.classList.add("wrong")});
+      const ex=d.querySelector(".expl"); ex.textContent=(ok?"Bonne réponse. ":"Raté. ")+(q.explication||""); ex.classList.remove("hidden");
+      speakItems([{text:ex.textContent,para:null}]);
+      if(answered===qs.length){const s=document.createElement("p"); s.className="score"; s.textContent=`Score : ${good} / ${qs.length}`; box.appendChild(s)}
+    });
+    box.appendChild(d);
+  });
+}
+
+/* ---------- démarrage ---------- */
+Object.assign(S,fetchStore("ieuc-reglages",{}));
+if(!Array.isArray(S.docs)) S.docs=["",""]; if(!Array.isArray(S.names)) S.names=["",""];
+LIB=fetchStore("ieuc-histoires",[]); if(!Array.isArray(LIB)) LIB=[];
+buildGenres(); renderLib();
+$("#matiere").value=S.matiere; $("#longueur").value=S.longueur; $("#withQuiz").checked=S.quiz;
+[1,2].forEach(n=>{$("#cours"+n).value=S.docs[n-1]||""; updateCount(n)});
+$("#matiere").oninput=e=>{S.matiere=e.target.value; save()};
+$("#longueur").onchange=e=>{S.longueur=e.target.value; save()};
+$("#withQuiz").onchange=e=>{S.quiz=e.target.checked; save()};
+$("#rate").value=S.rate; $("#rateVal").textContent=(+S.rate).toLocaleString("fr-FR")+"×";
+$("#musicVol").value=S.musicVol; Music.vol=+S.musicVol;
+</script>
+</body>
+</html>
